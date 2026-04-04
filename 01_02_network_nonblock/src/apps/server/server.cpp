@@ -6,6 +6,7 @@
 
 int main(int argc, char* argv[])
 {
+    //初始化并创建Socket
     _sock_init();
     SOCKET socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (socket == INVALID_SOCKET)
@@ -14,8 +15,10 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    //_sock_nonblock宏，设置Socket属性，把阻塞模式变为非阻塞模式
     _sock_nonblock(socket);
 
+    //设定IP和端口并绑定
     sockaddr_in addr;
     memset(&addr, 0, sizeof(sockaddr_in));
     addr.sin_family = AF_INET;
@@ -28,6 +31,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    //监听指定的IP和端口
     int backlog = GetListenBacklog();
     if (::listen(socket, backlog) < 0)
     {
@@ -45,14 +49,17 @@ int main(int argc, char* argv[])
 
     while (true)
     {
+        //
         SOCKET newSocket = ::accept(socket, &socketClient, &socketLength);
         if (newSocket != INVALID_SOCKET)
         {
             std::cout << "new connection.socket:" << newSocket << std::endl;
-            _sock_nonblock(newSocket);
-            sockets.push_back(newSocket);
+            _sock_nonblock(newSocket); //接收到一个新的连接请求，设为非阻塞
+            sockets.push_back(newSocket); //压入sockets列表
         }
 
+
+        //遍历sockets列表，尝试接收。如收到数据则回复，之后关闭该socket
         auto iter = sockets.begin();
         while (iter != sockets.end())
         {
