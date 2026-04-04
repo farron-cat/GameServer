@@ -45,7 +45,9 @@
 #endif
 
 class ConnectObj;
-
+/// <summary>
+/// @brief Network基类，管理socket和Select()多路复用
+/// </summary>
 class Network : public IDisposable {
 public:
 	void Dispose( ) override;
@@ -57,7 +59,7 @@ protected:
 	SOCKET CreateSocket( );
 
 protected:
-	SOCKET _masterSocket{ INVALID_SOCKET };
-	std::map<SOCKET, ConnectObj*> _connects;
-	fd_set readfds, writefds, exceptfds;
+	SOCKET _masterSocket{ INVALID_SOCKET }; //在每一帧的循环中，网络系统都会监视 _masterSocket 的状态变化（如可读、可写或异常），从而驱动整个网络层的后续操作
+	std::map<SOCKET, ConnectObj*> _connects; //监听类NetworkListen：有无数个ConnectObj类，保存每个连接的数据；连接类NetworkConnector：只有一个ConnectObj类
+	fd_set readfds, writefds, exceptfds; //三个fd_set集合，分别用于存储可读、可写、异常的描述符
 };
