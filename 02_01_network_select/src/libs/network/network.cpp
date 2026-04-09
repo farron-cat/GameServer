@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+//资源释放，override自IDisposable
 void Network::Dispose()
 {
 	auto iter = _connects.begin();
